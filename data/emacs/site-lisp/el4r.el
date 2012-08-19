@@ -154,12 +154,35 @@
               )))
     )))
 
-(defun el4r-recv ()
-  (let ((expr))
-    (while (eq nil (progn (setq expr (el4r-scan-expr-from-ruby)) expr))
-      (el4r-check-alive)
-      (accept-process-output el4r-process))
-    expr))
+
+(if (string-match "apple" (emacs-version))   ;; If emacs is running on the mac
+  (defun el4r-recv ()
+    (let ((expr))
+      (while (eq nil (progn (setq expr (el4r-scan-expr-from-ruby)) expr))
+        (el4r-check-alive)
+        ; Call alterative version that loops and waits
+        ; to avoid severe slowdown with (accept-process-output)
+        ; on Mac Emacs23+ versions.
+        (accept-process-output2 el4r-process))
+      expr))
+  (defun el4r-recv ()
+    (let ((expr))
+      (while (eq nil (progn (setq expr (el4r-scan-expr-from-ruby)) expr))
+        (el4r-check-alive)
+        (accept-process-output el4r-process))
+      expr)))
+
+
+; Alterative version that loops
+(defun accept-process-output2 (process)
+  (save-match-data
+    (with-current-buffer (process-buffer process)
+      (while (or (eq (point-max) 1) (not (string-match "\0" (buffer-string))))
+        (sleep-for 0.00001)))))
+
+
+
+
 
 (defun el4r-send (rubyexpr)
   (el4r-check-alive)
