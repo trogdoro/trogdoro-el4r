@@ -97,7 +97,7 @@ class RCtool
     
     open(@modified_file, "w") {|f|
       puts "Generating #{@modified_file}..." if @verbose
-      old_content = File.read(@target_file)
+      old_content = File.open(@target_file, 'rb') {|f| f.read}
 
       bob       = beginning_of_block comment_start
       attention = attention_msg comment_start

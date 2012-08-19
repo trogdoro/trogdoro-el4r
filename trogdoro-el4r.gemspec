@@ -15,7 +15,7 @@ rubygems_version: 0.9.0
 specification_version: 1
 name: trogdoro-el4r
 version: !ruby/object:Gem::Version 
-  version: 1.0.5
+  version: 1.0.6
 date: 2012-08-18 00:00:00 +09:00
 summary: EmacsRuby engine - EmacsLisp for Ruby
 require_paths: 
