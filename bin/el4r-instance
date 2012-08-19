@@ -883,8 +883,15 @@ module El4r
       el4r_install_run_unittest
     end
 
+
     # Install el4r version of Test::Unit.
     def el4r_install_test_unit_testrunner
+
+
+      # Temporarily comment this out because it breaks ruby 1.9
+      return
+
+
       require 'test/unit'
       require 'test/unit/ui/console/testrunner'
       require 'stringio'
