@@ -155,7 +155,7 @@
     )))
 
 
-(if (string-match "apple" (emacs-version))   ;; If emacs is running on the mac
+(if (string-match "Emacs 2[34].+apple-" (emacs-version))   ;; If emacs 23 or 24 on the Mac, do work-around
   (defun el4r-recv ()
     (let ((expr))
       (while (eq nil (progn (setq expr (el4r-scan-expr-from-ruby)) expr))
