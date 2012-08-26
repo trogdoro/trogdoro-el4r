@@ -783,6 +783,7 @@ module El4r
 
     def el4r_get
       expr = el4r_recv
+      expr.force_encoding("binary") if expr.respond_to? :force_encoding   # For ruby 1.9
       while expr.empty?
         el4r_debug { "Received callback interrupt."; }
         el4r_wait_expr
