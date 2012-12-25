@@ -169,7 +169,8 @@
     (let ((expr))
       (while (eq nil (progn (setq expr (el4r-scan-expr-from-ruby)) expr))
         (el4r-check-alive)
-        (accept-process-output el4r-process))
+        (with-local-quit
+          (accept-process-output el4r-process)))
       expr)))
 
 
