@@ -45,7 +45,6 @@
 
 (defvar el4r-ruby-object-ids nil)
 (defvar el4r-ruby-object-weakhash nil)
-;(defvar el4r-defun-hash nil)
 (defvar el4r-defun-lambdas nil)
 (defvar el4r-lisp-object-hash nil)
 (defvar el4r-lisp-object-lastid 0)
@@ -113,7 +112,6 @@
   (el4r-override-variables)
   (setq el4r-lisp-object-hash (make-hash-table :test 'eq))
   (setq el4r-ruby-object-weakhash (make-hash-table :test 'eq :weakness 'value))
-;  (setq el4r-defun-hash (make-hash-table :test 'eq))
   (setq el4r-defun-lambdas nil)
   (let ((buffer el4r-process-bufname)
         (process-connection-type nil))  ; Use a pipe.
