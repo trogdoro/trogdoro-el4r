@@ -1,4 +1,4 @@
-;; el4r - EmacsLisp for Ruby 
+;; el4r - EmacsLisp for Ruby
 ;; Copyright (C) 2005 rubikitch <rubikitch@ruby-lang.org>
 ;; Version: $Id: el4r.el 1280 2006-06-24 08:33:17Z rubikitch $
 
@@ -23,7 +23,7 @@
     (error "Sorry, el4r requires (X)Emacs21 or later, because it uses weak hash."))
 
 (put 'el4r-ruby-error
-     'error-conditions                        
+     'error-conditions
      '(error el4r-ruby-error))
 (put 'el4r-ruby-error 'error-message "Error raised in Ruby")
 
@@ -45,7 +45,6 @@
 
 (defvar el4r-ruby-object-ids nil)
 (defvar el4r-ruby-object-weakhash nil)
-;(defvar el4r-defun-hash nil)
 (defvar el4r-defun-lambdas nil)
 (defvar el4r-lisp-object-hash nil)
 (defvar el4r-lisp-object-lastid 0)
@@ -65,8 +64,7 @@
 
 (unless (fboundp 'process-send-signal)
   (defun process-send-signal (signal process-or-name)
-    (signal-process (process-id (get-process process-or-name)) signal))
-  )
+    (signal-process (process-id (get-process process-or-name)) signal)))
 
 (defun el4r-boot (&optional noinit)
   "Start el4r process, load ~/.el4r/init.rb, and prepare log buffer."
@@ -78,8 +76,7 @@
       (erase-buffer)))
   (el4r-init)
   (el4r-ruby-eval
-   (if noinit "el4r_boot__noinit" "el4r_boot"))
-  )
+   (if noinit "el4r_boot__noinit" "el4r_boot")))
 
 (defun el4r-shutdown ()
   "Shutdown el4r."
@@ -87,8 +84,7 @@
   (when (el4r-running-p)
     (el4r-ruby-eval "el4r_shutdown")
     (process-send-signal 'SIGTERM (process-name el4r-process))
-    (setq el4r-process nil)
-    ))
+    (setq el4r-process nil)))
 
 (defun el4r-restart ()
   "Shutdown then start el4r."
@@ -116,7 +112,6 @@
   (el4r-override-variables)
   (setq el4r-lisp-object-hash (make-hash-table :test 'eq))
   (setq el4r-ruby-object-weakhash (make-hash-table :test 'eq :weakness 'value))
-;  (setq el4r-defun-hash (make-hash-table :test 'eq))
   (setq el4r-defun-lambdas nil)
   (let ((buffer el4r-process-bufname)
         (process-connection-type nil))  ; Use a pipe.
@@ -131,9 +126,7 @@
       (and el4r-coding-system
            (set-process-coding-system el4r-process
                                       el4r-coding-system el4r-coding-system)))
-    (message "el4r started.")
-  ))
-
+    (message "el4r started.")))
 
 (defun el4r-check-alive ()
   (or (eq (process-status el4r-process) 'run)
@@ -150,10 +143,7 @@
               (setq expr
                     (buffer-substring (point-min) (- point-after-zero 1)))
               (delete-region (point-min) point-after-zero)
-              expr
-              )))
-    )))
-
+              expr))))))
 
 (if (string-match "Emacs 2[34].+apple-" (emacs-version))   ;; If emacs 23 or 24 on the Mac, do work-around
   (defun el4r-recv ()
@@ -169,9 +159,9 @@
     (let ((expr))
       (while (eq nil (progn (setq expr (el4r-scan-expr-from-ruby)) expr))
         (el4r-check-alive)
-        (accept-process-output el4r-process))
+        (with-local-quit
+          (accept-process-output el4r-process)))
       expr)))
-
 
 ; Alterative version that loops
 (defun accept-process-output2 (process)
@@ -180,16 +170,13 @@
       (while (or (eq (point-max) 1) (not (string-match "\0" (buffer-string))))
         (sleep-for 0.00001)))))
 
-
-
-
-
 (defun el4r-send (rubyexpr)
   (el4r-check-alive)
   (process-send-string el4r-process rubyexpr)
   (process-send-string el4r-process "\0\n"))
 
 (defvar el4r-error-lisp-expression nil)
+
 (defun el4r-get ()
   (let ((result (el4r-recv)) expr)
     (while (eq (length result) 0)
@@ -200,8 +187,7 @@
       ;; !DRY! (find-function 'el4r-wait-expr)
       (el4r-ruby-error (signal 'el4r-ruby-error nil))
       (error (setq el4r-error-lisp-expression expr)
-             (signal (car err) (cdr err))))
-    ))
+             (signal (car err) (cdr err))))))
 
 (defun el4r-signal-last-error ()
   (signal (car el4r-last-error-desc) (cdr el4r-last-error-desc)))
@@ -251,10 +237,7 @@
                                   ("\031" . "\\\\cy")
                                   ("\032" . "\\\\cz")
                                   ))
-                        (buffer-string)))
-      
-      )))))
-
+                        (buffer-string))))))))
 
 (defun el4r-proper-list-p (expression)
   ;; Tell if a list is proper, id est, that it is `nil' or ends with `nil'.
@@ -281,8 +264,7 @@
                  (el4r-lisp-object-to-id obj)))
         (t
          (format "el4r_elobject_new(%d)"
-                 (el4r-lisp-object-to-id obj)))
-        ))
+                 (el4r-lisp-object-to-id obj)))))
 
 (defun el4r-wait-expr ()
   (el4r-enter-call)
@@ -303,8 +285,7 @@
   (el4r-send rubyexpr)
   (let ((result (el4r-get)))
     (el4r-leave-call)
-    result
-    ))
+    result))
 
 (defun el4r-lisp-object-from-id (id)
   (or (gethash id el4r-lisp-object-hash)
@@ -315,8 +296,7 @@
   (let ((id el4r-lisp-object-lastid))
     (setq el4r-lisp-object-lastid (+ id 1))
     (puthash id obj el4r-lisp-object-hash)
-    id
-    ))
+    id))
 
 (defun el4r-garbage-collect ()
   "Force garbage collection for el4r."
@@ -330,8 +310,7 @@
   (let ((ids (el4r-ruby-call nil 'el4r_get_garbage_lispobj_ids)))
     (while ids
       (remhash (car ids) el4r-lisp-object-hash)
-      (setq ids (cdr ids))
-    )))
+      (setq ids (cdr ids)))))
 
 (defun el4r-gc-lisp-objects-if-required ()
   (if (>= (hash-table-count el4r-lisp-object-hash)
@@ -339,18 +318,20 @@
       (progn (el4r-gc-lisp-objects)
              (setq el4r-lisp-object-gc-trigger-count
                    (+ (hash-table-count el4r-lisp-object-hash)
-                      el4r-lisp-object-gc-trigger-increment)))
-    ))
+                      el4r-lisp-object-gc-trigger-increment)))))
 
 (defun el4r-rubyobj-p (rubyobj)
   (and (listp rubyobj) (eq (car rubyobj) 'el4r-rubyobj)))
+
 (defun el4r-rubyobj-id (rubyobj)
   (cdr rubyobj))
+
 (defun el4r-rubyobj-create (id)
   (let ((rubyobj (cons 'el4r-rubyobj id)))
     (setq el4r-ruby-object-ids (cons id el4r-ruby-object-ids))
     (puthash id rubyobj el4r-ruby-object-weakhash)
     rubyobj))
+
 (defun el4r-rubyobj-get-alive-ids ()
   (garbage-collect)
 ;;   (let (ids)
@@ -375,8 +356,10 @@
 
 (defun el4r-rubyexpr-p (rubyexpr)
   (and (listp rubyexpr) (eq (car rubyexpr) 'el4r-rubyexpr)))
+
 (defun el4r-rubyexpr-string (rubyexpr)
   (cdr rubyexpr))
+
 (defun el4r-rubyexpr-quote (string)
   (cons 'el4r-rubyexpr string))
 
@@ -389,6 +372,7 @@
         (setq list (cdr list)))
       (setq tokens (nreverse (cdr tokens)))
       (apply 'concat tokens)))
+
 (defun el4r-list-to-rubyseq (list)
   (mapconcat (lambda (x)
                (el4r-lisp2ruby x))
@@ -396,10 +380,12 @@
 
 (defun el4r-list-to-rubyary (list)
   (el4r-rubyexpr-quote (format "[%s]" (el4r-list-to-rubyseq list))))
+
 (defun el4r-cons-to-rubyary (cons)
   (el4r-list-to-rubyary (list (car cons) (cdr cons))))
 
 (defalias 'el4r-vector-to-rubyseq 'el4r-list-to-rubyseq)
+
 (defalias 'el4r-vector-to-rubyary 'el4r-list-to-rubyary)
 
 (defun el4r-ruby-call (receiver name &rest args)
@@ -425,17 +411,18 @@
     (setq el4r-ruby-object-ids (cons rubyproc-id el4r-ruby-object-ids))
     (puthash rubyproc-id lmd el4r-ruby-object-weakhash)
     lmd))
+
 (defun el4r-ruby-call-proc-by-id (rubyproc-id args)
   (el4r-ruby-eval (format "el4r_rubyobj_stock.id2obj(%s).call(%s)"
                           rubyproc-id (el4r-list-to-rubyseq args))))
+
 (defun el4r-ruby-call-proc (rubyproc &rest args)
   (el4r-ruby-call-proc-by-id (el4r-rubyobj-id rubyproc) args))
 
 (defun el4r-ruby-eval-prompt (expr)
   "Read and execute Ruby code."
   (interactive "sEval Ruby: ")
-  (message (prin1-to-string (el4r-ruby-eval expr)))
-  )
+  (message (prin1-to-string (el4r-ruby-eval expr))))
 
 (defun el4r-ruby-eval-region (point mark)
   "Execute the region as Ruby code."
