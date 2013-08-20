@@ -23,9 +23,9 @@
     (error "Sorry, el4r requires (X)Emacs21 or later, because it uses weak hash."))
 
 (put 'el4r-ruby-error
-     'error-conditions                        
+     'error-conditions
      '(error el4r-ruby-error))
-(put 'el4r-ruby-error 'error-message "Error raised in Ruby")
+(put 'el4r-ruby-error 'error-message "Error raised in Ruby. Maybe try typing alt-l or option-l to reload.")
 
 (defvar el4r-ruby-program "ruby"
   "The name of Ruby binary.")
