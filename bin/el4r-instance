@@ -844,7 +844,8 @@ module El4r
     # When an Exception is raised, write a stacktrace message to the log.
     def el4r_ruby_eval(source)
       begin
-        instance_eval(source)
+        # instance_eval(source)
+        instance_eval(source, "/tmp/el4r")   # Passing fake path makes it show all the way up the stack for some reason
       rescue Exception
         el4r_debug { "Error in evaluating '#{source}': #{ErrorUtils.stacktrace_message($!)}"; }
         raise
