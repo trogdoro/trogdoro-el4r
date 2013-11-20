@@ -25,7 +25,7 @@
 (put 'el4r-ruby-error
      'error-conditions
      '(error el4r-ruby-error))
-(put 'el4r-ruby-error 'error-message "Error raised in Ruby. Maybe try typing alt-l or option-l to reload.")
+(put 'el4r-ruby-error 'error-message "Error raised in Ruby.  Type alt-l to reload or alt-e to show (on OSX try option instead of alt).")
 
 (defvar el4r-ruby-program "ruby"
   "The name of Ruby binary.")
@@ -460,5 +460,36 @@
   (fset name func)
   (el4r-register-lambda func)
   nil)
+
+
+(defun el4r-kill-and-restart ()
+  (interactive)
+  "Load .emacs (reloading EmacsRuby)"
+  (switch-to-buffer "*el4r:process*")
+  (kill-buffer "*el4r:process*")
+  (load-file "~/.emacs")
+  )
+
+(defun el4r-jump-to-error ()
+  (interactive)
+  "Go to EmacsRuby error"
+  (find-file el4r-log-path)
+  (revert-buffer t t t)
+  (setq truncate-lines t)
+  (end-of-buffer)
+  (ignore-errors
+    (re-search-backward "^  from ")
+    (re-search-backward "^\\S-")
+    (recenter 0)
+  )
+)
+
+
+; This function is called from the Xiki config
+; It defines two keys, for dealing with el4r errors
+(defun el4r-troubleshooting-keys ()
+  (global-set-key (kbd "M-l") 'el4r-kill-and-restart)
+  (global-set-key (kbd "M-e") 'el4r-jump-to-error)
+  )
 
 (provide 'el4r)
