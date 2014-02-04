@@ -267,13 +267,18 @@ dotemacs_block = <<END_OF_BLOCK
 (el4r-boot)
 END_OF_BLOCK
 
-rc.define_patch(".emacs", dotemacs_block, ";;", "%s", :append)
+emacs_init  = ".emacs.d/init.el"
 xemacs_init = ".xemacs/init.el"
-if File.exist?(File.expand_path(xemacs_init, ENV['HOME']))
+dot_emacs   = ".emacs"
+
+if File.exist?(File.expand_path(emacs_init, ENV['HOME']))
+  rc.define_patch(emacs_init, dotemacs_block, ";;", "%s", :append)
+elsif File.exist?(File.expand_path(xemacs_init, ENV['HOME']))
   rc.define_patch(xemacs_init, dotemacs_block, ";;", "%s", :append)
+else
+  rc.define_patch(dot_emacs, dotemacs_block, ";;", "%s", :append)
 end
 
 rc.define_patch("#{home_dir}/init.rb", <<END_OF_BLOCK, "#", "%s", :prepend)
 # This is the el4r initialization file.
 END_OF_BLOCK
-
